@@ -2,8 +2,8 @@
 
 // 游戏常量
 const TILE_SIZE = 24;
-const MAP_WIDTH = 13;
-const MAP_HEIGHT = 13;
+const MAP_WIDTH = 26;
+const MAP_HEIGHT = 26;
 const CANVAS_WIDTH = MAP_WIDTH * TILE_SIZE;
 const CANVAS_HEIGHT = MAP_HEIGHT * TILE_SIZE;
 
@@ -59,7 +59,7 @@ let explosions = [];
 let score = 0;
 let stage = 1;
 let lives = 3;
-let totalEnemies = 20;
+let totalEnemies = 35;
 let enemiesDestroyed = 0;
 let gameRunning = false;
 let gamePaused = false;
@@ -309,9 +309,9 @@ class Explosion {
     }
 }
 
-// 第一关地图 - 正确的13x13
+// 第一关地图 - 26x26
 function createStage1() {
-    // 初始化空地图 0~12
+    // 初始化空地图 0~25
     map = Array(MAP_HEIGHT).fill().map(() => Array(MAP_WIDTH).fill(TILE.EMPTY));
     
     // 边界钢铁墙 整个外围
@@ -324,31 +324,38 @@ function createStage1() {
     }
     
     // 随机砖块
-    for (let i = 0; i < 30; i++) {
-        let x = 1 + Math.floor(Math.random() * (MAP_WIDTH - 3));
-        let y = 1 + Math.floor(Math.random() * (MAP_HEIGHT - 3));
+    for (let i = 0; i < 100; i++) {
+        let x = 1 + Math.floor(Math.random() * (MAP_WIDTH - 4));
+        let y = 1 + Math.floor(Math.random() * (MAP_HEIGHT - 6));
         if (map[y][x] === TILE.EMPTY) {
             map[y][x] = Math.random() > 0.3 ? TILE.BRICK : TILE.STEEL;
         }
     }
     
     // 中心竖墙
-    for (let y = 3; y <= 9; y++) {
-        map[y][6] = y % 2 === 0 ? TILE.STEEL : TILE.BRICK;
+    for (let y = 5; y <= 20; y++) {
+        map[y][12] = y % 2 === 0 ? TILE.STEEL : TILE.BRICK;
     }
     
     // 基地在底部中心 (基地占 2x2)
-    // y = 11, 从 x=6 开始
-    map[11][6] = TILE.BASE;
-    map[11][7] = TILE.BASE;
-    map[12][6] = TILE.BASE;
-    map[12][7] = TILE.BASE;
+    const baseY = MAP_HEIGHT - 4;
+    map[baseY][12] = TILE.BASE;
+    map[baseY][13] = TILE.BASE;
+    map[baseY+1][12] = TILE.BASE;
+    map[baseY+1][13] = TILE.BASE;
     
     // 保护基地的砖块
-    map[10][5] = TILE.BRICK;
-    map[10][6] = TILE.BRICK;
-    map[10][7] = TILE.BRICK;
-    map[10][8] = TILE.BRICK;
+    map[baseY-1][11] = TILE.BRICK;
+    map[baseY-1][12] = TILE.BRICK;
+    map[baseY-1][13] = TILE.BRICK;
+    map[baseY-1][14] = TILE.BRICK;
+    // 左右两片砖墙
+    for (let y = 2; y <= baseY-2; y++) {
+        if (y % 3 === 0) {
+            map[y][3] = TILE.BRICK;
+            map[y][MAP_WIDTH - 4] = TILE.BRICK;
+        }
+    }
 }
 
 // 更新敌人数图标
@@ -465,16 +472,16 @@ function startGame() {
 
 // 生成玩家
 function spawnPlayer() {
-    player = new Tank(1, MAP_HEIGHT - 3, DIRECTION.UP, TANK_TYPE.PLAYER, true);
+    player = new Tank(2, MAP_HEIGHT - 4, DIRECTION.UP, TANK_TYPE.PLAYER, true);
 }
 
 // 生成敌人
 function spawnEnemies() {
     // 敌人从上方三个位置出来
     const spawnPoints = [
-        [1, 1],
-        [Math.floor(MAP_WIDTH / 2) - 1, 1],
-        [MAP_WIDTH - 3, 1]
+        [2, 2],
+        [Math.floor(MAP_WIDTH / 2) - 1, 2],
+        [MAP_WIDTH - 4, 2]
     ];
     
     let remaining = totalEnemies - enemies.filter(e => e.active).length;
