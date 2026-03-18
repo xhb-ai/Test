@@ -445,7 +445,6 @@ function startGame() {
     expGems = [];
     particles = [];
     
-    score = 0;
     startTime = Date.now();
     enemySpawnTimer = 0;
     enemySpawnInterval = 1000; // 初始1秒一个
@@ -453,8 +452,8 @@ function startGame() {
     gameRunning = true;
     gamePaused = false;
     lastTime = Date.now();
-    gameLoop();
     updateUI();
+    gameLoop();
 }
 
 let startTime = 0;
@@ -560,7 +559,9 @@ function checkLevelUp() {
         player.xp -= player.xpToNext;
         player.level++;
         player.xpToNext = Math.floor(player.xpToNext * 1.5);
-        showUpgradeMenu();
+        setTimeout(() => {
+            showUpgradeMenu();
+        }, 100);
     }
 }
 
@@ -577,13 +578,17 @@ function showUpgradeMenu() {
         const div = document.createElement('div');
         div.className = 'upgrade-option';
         div.innerHTML = `<h4>${option.name}</h4><p>${option.description}</p>`;
-        div.addEventListener('click', () => {
+        div.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             option.effect(player);
             upgradeModal.classList.add('hidden');
             gamePaused = false;
             lastTime = Date.now();
             updateUI();
-            gameLoop();
+            if (gameRunning) {
+                gameLoop();
+            }
         });
         upgradeOptionsEl.appendChild(div);
     }

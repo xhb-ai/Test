@@ -126,7 +126,7 @@ class Tank {
     }
     
     checkCollision(newX, newY) {
-        // 检查四个角
+        // 检查四个角 (坦克占2x2格)
         const points = [
             [newX, newY],
             [newX + this.width - 0.1, newY],
@@ -135,12 +135,17 @@ class Tank {
         ];
         
         for (let [px, py] of points) {
+            // 检查边界
             if (px < 0 || px + this.width > MAP_WIDTH || py < 0 || py + this.height > MAP_HEIGHT) {
                 return true; // 撞墙
             }
             
             const tileX = Math.floor(px);
             const tileY = Math.floor(py);
+            if (tileX < 0 || tileX >= MAP_WIDTH || tileY < 0 || tileY >= MAP_HEIGHT) {
+                return true;
+            }
+            
             const tile = map[tileY][tileX];
             
             if (tile === TILE.BRICK || tile === TILE.STEEL || tile === TILE.BASE) {
@@ -149,7 +154,7 @@ class Tank {
         }
         
         // 检查和其他坦克碰撞
-        const allTanks = [player, ...enemies].filter(t => t !== this);
+        const allTanks = [player, ...enemies].filter(t => t !== this && t.active);
         for (let tank of allTanks) {
             if (this.overlaps(newX, newY, tank)) {
                 return true;
@@ -303,7 +308,7 @@ class Explosion {
     }
 }
 
-// 第一关地图
+// 第一关地图 13x13 = 0~12，边界是钢铁，内部可玩 11x11 (1~11)
 function createStage1() {
     // 初始化空地图
     map = Array(MAP_HEIGHT).fill().map(() => Array(MAP_WIDTH).fill(TILE.EMPTY));
@@ -319,8 +324,8 @@ function createStage1() {
     
     // 随机砖块
     for (let i = 0; i < 30; i++) {
-        let x = Math.floor(Math.random() * (MAP_WIDTH - 2)) + 1;
-        let y = Math.floor(Math.random() * (MAP_HEIGHT - 2)) + 1;
+        let x = Math.floor(Math.random() * (MAP_WIDTH - 4)) + 2;
+        let y = Math.floor(Math.random() * (MAP_HEIGHT - 4)) + 2;
         if (map[y][x] === TILE.EMPTY) {
             map[y][x] = Math.random() > 0.3 ? TILE.BRICK : TILE.STEEL;
         }
@@ -331,14 +336,15 @@ function createStage1() {
         map[y][6] = y % 2 === 0 ? TILE.STEEL : TILE.BRICK;
     }
     
-    // 基地在底部中心
+    // 基地在底部中心 (基地占2格)
     map[11][6] = TILE.BASE;
-    map[12][6] = TILE.BASE;
+    map[11][7] = TILE.BASE;
     
     // 保护基地的砖块
     map[10][5] = TILE.BRICK;
     map[10][6] = TILE.BRICK;
     map[10][7] = TILE.BRICK;
+    map[10][8] = TILE.BRICK;
 }
 
 // 更新敌人数图标
@@ -457,6 +463,7 @@ function startGame() {
 // 生成玩家
 function spawnPlayer() {
     player = new Tank(1, MAP_HEIGHT - 3, DIRECTION.UP, TANK_TYPE.PLAYER, true);
+    player.active = true;
 }
 
 // 生成敌人
