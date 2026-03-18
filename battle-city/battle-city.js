@@ -1,7 +1,7 @@
 // 坦克大战 Battle City - 核心逻辑
 
 // 游戏常量
-const TILE_SIZE = 16;
+const TILE_SIZE = 24;
 const MAP_WIDTH = 13;
 const MAP_HEIGHT = 13;
 const CANVAS_WIDTH = MAP_WIDTH * TILE_SIZE;
