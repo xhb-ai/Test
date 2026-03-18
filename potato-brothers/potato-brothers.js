@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startBtn.addEventListener('click', startGame);
     pauseBtn.addEventListener('click', togglePause);
     playAgainBtn.addEventListener('click', () => {
-        gameOverModal.classList.add('hidden');
+        gameOverModal.style.display = 'none';
         startGame();
     });
     
@@ -569,7 +569,7 @@ function checkLevelUp() {
 // 显示升级菜单
 function showUpgradeMenu() {
     gamePaused = true;
-    upgradeModal.classList.remove('hidden');
+    upgradeModal.style.display = 'flex';
     
     // 随机选3个选项
     upgradeOptionsEl.innerHTML = '';
@@ -583,7 +583,7 @@ function showUpgradeMenu() {
             e.preventDefault();
             e.stopPropagation();
             option.effect(player);
-            upgradeModal.classList.add('hidden');
+            upgradeModal.style.display = 'none';
             gamePaused = false;
             lastTime = Date.now();
             updateUI();
@@ -649,7 +649,7 @@ function gameOver() {
     survivalTimeEl.textContent = formatTime(survivalSeconds);
     finalKillsEl.textContent = player.kills;
     maxLevelEl.textContent = player.level;
-    gameOverModal.classList.remove('hidden');
+    gameOverModal.style.display = 'flex';
 }
 
 function formatTime(seconds) {
