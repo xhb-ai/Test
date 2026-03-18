@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>坦克大战 Battle City</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>坦克大战 Battle City</h1>
+        <div class="game-wrapper">
+            <div class="left-panel">
+                <div class="info-box">
+                    <h3>关卡</h3>
+                    <p id="stage">1</p>
+                </div>
+                <div class="info-box">
+                    <h3>分数</h3>
+                    <p id="score">0</p>
+                </div>
+                <div class="info-box">
+                    <h3>生命</h3>
+                    <p id="lives">3</p>
+                </div>
+                <div class="enemies-box">
+                    <h3>剩余敌人</h3>
+                    <div id="enemyIcons"></div>
+                </div>
+            </div>
+            <div class="game-area">
+                <canvas id="gameCanvas"></canvas>
+                <div class="controls">
+                    <button id="startBtn">开始游戏</button>
+                    <button id="pauseBtn">暂停</button>
+                    <button id="restartBtn">重新开始</button>
+                </div>
+                <div class="touch-controls">
+                    <div class="touch-grid">
+                        <div></div>
+                        <button class="virtual-btn" id="btnUp">▲</button>
+                        <div></div>
+                        <button class="virtual-btn" id="btnLeft">◀</button>
+                        <button class="virtual-btn" id="btnDown">▼</button>
+                        <button class="virtual-btn" id="btnRight">▶</button>
+                        <button class="virtual-btn fire" id="btnFire">💥</button>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="rules">
+                    <h3>操作说明</h3>
+                    <ul>
+                        <li>↑↓←→ 移动坦克</li>
+                        <li>空格 发射子弹</li>
+                        <li>保护基地 🦅</li>
+                        <li>消灭所有敌人</li>
+                        <li>砖块可以打破</li>
+                        <li>钢铁不能打破</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="gameOverModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="gameOverTitle">游戏结束</h2>
+            <p>最终得分: <span id="finalScore">0</span></p>
+            <button id="playAgainBtn">再玩一次</button>
+        </div>
+    </div>
+    <script src="battle-city.js"></script>
+</body>
+</html>

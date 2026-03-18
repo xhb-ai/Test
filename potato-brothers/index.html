@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>土豆兄弟 Potato Brothers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🥔 土豆兄弟</h1>
+        <div class="game-container">
+            <div class="stats-panel">
+                <div class="stat-box">
+                    <h3>等级</h3>
+                    <p id="level">1</p>
+                </div>
+                <div class="stat-box">
+                    <h3>生命</h3>
+                    <p id="health">100</p>
+                </div>
+                <div class="stat-box">
+                    <h3>伤害</h3>
+                    <p id="damage">10</p>
+                </div>
+                <div class="stat-box">
+                    <h3>经验</h3>
+                    <div class="xp-bar">
+                        <div id="xp-fill" class="xp-fill"></div>
+                    </div>
+                    <p id="xpText">0/10</p>
+                </div>
+                <div class="stat-box">
+                    <h3>击杀</h3>
+                    <p id="kills">0</p>
+                </div>
+            </div>
+            <div class="game-area">
+                <canvas id="gameCanvas"></canvas>
+                <div class="controls">
+                    <button id="startBtn">开始游戏</button>
+                    <button id="pauseBtn">暂停</button>
+                </div>
+                <div class="touch-controls">
+                    <div class="joystick-area" id="joystickArea">
+                        <div id="joystick" class="joystick">
+                            <div id="joystickKnob" class="joystick-knob"></div>
+                        </div>
+                        <p>摇杆移动</p>
+                    </div>
+                </div>
+            </div>
+            <div class="upgrade-panel">
+                <div id="upgrades" class="upgrades-list">
+                    <p class="upgrade-hint">升级选项会出现在这里</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 升级选择弹窗 -->
+    <div id="upgradeModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>选择升级</h2>
+            <div id="upgradeOptions" class="upgrade-options"></div>
+        </div>
+    </div>
+    
+    <!-- 游戏结束弹窗 -->
+    <div id="gameOverModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>游戏结束</h2>
+            <p>生存时间: <span id="survivalTime">0</span></p>
+            <p>击杀数: <span id="finalKills">0</span></p>
+            <p>最高等级: <span id="maxLevel">1</span></p>
+            <button id="playAgainBtn">再玩一次</button>
+        </div>
+    </div>
+    
+    <script src="potato-brothers.js"></script>
+</body>
+</html>

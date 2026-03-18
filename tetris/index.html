@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>俄罗斯方块</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>俄罗斯方块</h1>
+        <div class="game-container">
+            <div class="left-panel">
+                <div class="next-box">
+                    <h3>下一个</h3>
+                    <canvas id="nextCanvas" width="120" height="120"></canvas>
+                </div>
+                <div class="score-box">
+                    <h3>分数</h3>
+                    <p id="score">0</p>
+                </div>
+                <div class="level-box">
+                    <h3>等级</h3>
+                    <p id="level">1</p>
+                </div>
+                <div class="lines-box">
+                    <h3>消行</h3>
+                    <p id="lines">0</p>
+                </div>
+            </div>
+            <div class="center-panel">
+                <canvas id="gameCanvas" width="300" height="600"></canvas>
+                <div class="controls">
+                    <button id="startBtn">开始游戏</button>
+                    <button id="pauseBtn">暂停</button>
+                    <button id="restartBtn">重新开始</button>
+                </div>
+                <div class="instructions">
+                    <p>← → 移动 | ↑ 旋转 | ↓ 加速下落 | 空格 直接落底</p>
+                </div>
+                <div class="touch-controls">
+                    <div class="touch-controls-virtual">
+                        <div></div>
+                        <button class="virtual-btn" id="touchRotate">↻</button>
+                        <div></div>
+                        <button class="virtual-btn" id="touchLeft">←</button>
+                        <button class="virtual-btn" id="touchDown">↓</button>
+                        <button class="virtual-btn" id="touchRight">→</button>
+                        <button class="virtual-btn drop" id="touchDrop">落底</button>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="controls-info">
+                    <h3>操作说明</h3>
+                    <ul>
+                        <li>← / → : 左右移动</li>
+                        <li>↑ : 旋转方块</li>
+                        <li>↓ : 加速下落</li>
+                        <li>空格 : 瞬间落底</li>
+                        <li>P : 暂停/继续</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="gameOverModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>游戏结束</h2>
+            <p>最终得分: <span id="finalScore">0</span></p>
+            <button id="playAgainBtn">再玩一次</button>
+        </div>
+    </div>
+    <script src="tetris.js"></script>
+</body>
+</html>
