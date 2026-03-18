@@ -116,10 +116,10 @@ class Particle {
     }
     
     draw(ctx) {
-        const alpha = this.life / this.maxLife;
-        ctx.fillStyle = this.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+        const alpha = Math.floor((this.life / this.maxLife) * 255).toString(16).padStart(2, '0');
+        ctx.fillStyle = this.color + alpha;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * alpha, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.size * (this.life / this.maxLife), 0, Math.PI * 2);
         ctx.fill();
     }
     
@@ -194,7 +194,7 @@ class Enemy {
         if (this.health < this.maxHealth) {
             const barWidth = this.size;
             const barHeight = 4;
-            ctx.fillStyle = '#333';
+            ctx.fillStyle = COLORS.healthBarBg;
             ctx.fillRect(this.x - barWidth/2, this.y - this.size/2 - 8, barWidth, barHeight);
             ctx.fillStyle = '#ff0000';
             ctx.fillRect(this.x - barWidth/2, this.y - this.size/2 - 8, barWidth * (this.health / this.maxHealth), barHeight);
@@ -217,9 +217,12 @@ class Bullet {
         this.damage = damage;
         this.size = BULLET_SIZE;
         this.life = 600; // 生命周期
+        this.active = true;
     }
     
     update(dt) {
+        if (!this.active) return;
+        
         this.x += Math.cos(this.angle) * this.speed * dt / 16;
         this.y += Math.sin(this.angle) * this.speed * dt / 16;
         this.life -= dt;
@@ -452,8 +455,8 @@ function startGame() {
     gameRunning = true;
     gamePaused = false;
     lastTime = Date.now();
-    updateUI();
     gameLoop();
+    updateUI();
 }
 
 let startTime = 0;
@@ -559,9 +562,7 @@ function checkLevelUp() {
         player.xp -= player.xpToNext;
         player.level++;
         player.xpToNext = Math.floor(player.xpToNext * 1.5);
-        setTimeout(() => {
-            showUpgradeMenu();
-        }, 100);
+        showUpgradeMenu();
     }
 }
 
@@ -597,13 +598,15 @@ function showUpgradeMenu() {
 // 检测子弹碰撞敌人
 function checkCollisions() {
     for (let bullet of bullets) {
-        if (!bullet.isDead()) {
+        if (bullet.active) {
             for (let enemy of enemies) {
+                if (enemy.health <= 0) continue;
+                
                 const dx = bullet.x - enemy.x;
                 const dy = bullet.y - enemy.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < enemy.size / 2) {
-                    if (enemy.hit(bullet.damage * player.damageMultiplier)) {
+                    if (enemy.hit(bullet.damage)) {
                         // 敌人死亡
                         addParticles(enemy.x, enemy.y, enemy.getColor(), 12);
                         expGems.push(new ExpGem(enemy.x, enemy.y, enemy.exp));
@@ -642,8 +645,8 @@ function gameOver() {
     gameRunning = false;
     cancelAnimationFrame(animationId);
     
-    const survivalTime = Math.floor((Date.now() - startTime) / 1000);
-    survivalTimeEl.textContent = formatTime(survivalTime);
+    const survivalSeconds = Math.floor((Date.now() - startTime) / 1000);
+    survivalTimeEl.textContent = formatTime(survivalSeconds);
     finalKillsEl.textContent = player.kills;
     maxLevelEl.textContent = player.level;
     gameOverModal.classList.remove('hidden');

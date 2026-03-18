@@ -95,6 +95,7 @@ class Tank {
         this.fireCooldown = isPlayer ? 300 : 800 + Math.random() * 500;
         this.moveTimer = 0;
         this.changeDirectionChance = 0.02;
+        this.active = true;
     }
     
     getSpeed() {
@@ -234,7 +235,7 @@ class Bullet {
             return;
         }
         
-        if (tile === TILE.STEEL || tile === TILE.BASE && !this.isPlayerBullet) {
+        if (tile === TILE.STEEL || (tile === TILE.BASE && !this.isPlayerBullet)) {
             this.active = false;
             return;
         }
@@ -250,7 +251,7 @@ class Bullet {
         if (this.isPlayerBullet) {
             for (let enemy of enemies) {
                 if (enemy.active && this.intersects(enemy)) {
-                    if (enemy.hit()) {
+                    if (enemy.hit(damage)) {
                         explosions.push(new Explosion(enemy.x * TILE_SIZE + TILE_SIZE, enemy.y * TILE_SIZE + TILE_SIZE));
                         enemiesDestroyed++;
                         score += enemy.type === TANK_TYPE.ENEMY_ARMOR ? 400 : 
@@ -264,7 +265,7 @@ class Bullet {
             }
         } else {
             // 敌人子弹打中玩家
-            if (player.active && this.intersects(player)) {
+            if (player && player.active && this.intersects(player)) {
                 this.active = false;
                 playerDies();
                 return;
@@ -308,12 +309,12 @@ class Explosion {
     }
 }
 
-// 第一关地图 13x13 = 0~12，边界是钢铁，内部可玩 11x11 (1~11)
+// 第一关地图 - 正确的13x13
 function createStage1() {
-    // 初始化空地图
+    // 初始化空地图 0~12
     map = Array(MAP_HEIGHT).fill().map(() => Array(MAP_WIDTH).fill(TILE.EMPTY));
     
-    // 边界钢铁墙
+    // 边界钢铁墙 整个外围
     for (let y = 0; y < MAP_HEIGHT; y++) {
         for (let x = 0; x < MAP_WIDTH; x++) {
             if (x === 0 || x === MAP_WIDTH - 1 || y === 0 || y === MAP_HEIGHT - 1) {
@@ -324,8 +325,8 @@ function createStage1() {
     
     // 随机砖块
     for (let i = 0; i < 30; i++) {
-        let x = Math.floor(Math.random() * (MAP_WIDTH - 4)) + 2;
-        let y = Math.floor(Math.random() * (MAP_HEIGHT - 4)) + 2;
+        let x = 1 + Math.floor(Math.random() * (MAP_WIDTH - 3));
+        let y = 1 + Math.floor(Math.random() * (MAP_HEIGHT - 3));
         if (map[y][x] === TILE.EMPTY) {
             map[y][x] = Math.random() > 0.3 ? TILE.BRICK : TILE.STEEL;
         }
@@ -336,9 +337,12 @@ function createStage1() {
         map[y][6] = y % 2 === 0 ? TILE.STEEL : TILE.BRICK;
     }
     
-    // 基地在底部中心 (基地占2格)
+    // 基地在底部中心 (基地占 2x2)
+    // y = 11, 从 x=6 开始
     map[11][6] = TILE.BASE;
     map[11][7] = TILE.BASE;
+    map[12][6] = TILE.BASE;
+    map[12][7] = TILE.BASE;
     
     // 保护基地的砖块
     map[10][5] = TILE.BRICK;
@@ -390,8 +394,7 @@ const keys = {
     up: false,
     down: false,
     left: false,
-    right: false,
-    fire: false
+    right: false
 };
 
 function handleKeyDown(e) {
@@ -400,7 +403,7 @@ function handleKeyDown(e) {
         case 40: keys.down = true; player && (player.direction = DIRECTION.DOWN); e.preventDefault(); break;
         case 37: keys.left = true; player && (player.direction = DIRECTION.LEFT); e.preventDefault(); break;
         case 39: keys.right = true; player && (player.direction = DIRECTION.RIGHT); e.preventDefault(); break;
-        case 32: if (gameRunning && !gamePaused) player.fire(); e.preventDefault(); break;
+        case 32: if (gameRunning && !gamePaused && player && player.active) player.fire(); e.preventDefault(); break;
         case 80: togglePause(); e.preventDefault(); break;
     }
 }
@@ -417,11 +420,11 @@ function handleKeyUp(e) {
 // 触屏控制绑定
 function bindTouchControls() {
     const btnMap = {
-        btnUp: () => { if (player) player.direction = DIRECTION.UP; movePlayer(); },
-        btnDown: () => { if (player) player.direction = DIRECTION.DOWN; movePlayer(); },
-        btnLeft: () => { if (player) player.direction = DIRECTION.LEFT; movePlayer(); },
-        btnRight: () => { if (player) player.direction = DIRECTION.RIGHT; movePlayer(); },
-        btnFire: () => { if (gameRunning && !gamePaused && player) player.fire(); }
+        btnUp: () => { if (player && player.active) player.direction = DIRECTION.UP; movePlayer(); },
+        btnDown: () => { if (player && player.active) player.direction = DIRECTION.DOWN; movePlayer(); },
+        btnLeft: () => { if (player && player.active) player.direction = DIRECTION.LEFT; movePlayer(); },
+        btnRight: () => { if (player && player.active) player.direction = DIRECTION.RIGHT; movePlayer(); },
+        btnFire: () => { if (gameRunning && !gamePaused && player && player.active) player.fire(); }
     };
     
     for (let [id, action] of Object.entries(btnMap)) {
@@ -463,7 +466,6 @@ function startGame() {
 // 生成玩家
 function spawnPlayer() {
     player = new Tank(1, MAP_HEIGHT - 3, DIRECTION.UP, TANK_TYPE.PLAYER, true);
-    player.active = true;
 }
 
 // 生成敌人
@@ -475,7 +477,7 @@ function spawnEnemies() {
         [MAP_WIDTH - 3, 1]
     ];
     
-    let remaining = totalEnemies - enemies.length;
+    let remaining = totalEnemies - enemies.filter(e => e.active).length;
     let toSpawn = Math.min(2, remaining);
     
     for (let i = 0; i < toSpawn; i++) {
@@ -614,7 +616,7 @@ function drawMap() {
         ctx.fillStyle = '#000';
         ctx.font = '16px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('🦅', 6.5 * TILE_SIZE, 12 * TILE_SIZE - 2);
+        ctx.fillText('🦅', 6.5 * TILE_SIZE, 11.5 * TILE_SIZE + 4);
     }
 }
 
@@ -648,6 +650,13 @@ function drawTank(tank) {
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(px, py, w, h);
+    
+    // 如果是装甲坦克，画个框表示
+    if (tank.armor > 1) {
+        ctx.strokeStyle = '#ffff00';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px + 2, py + 2, w - 4, h - 4);
+    }
 }
 
 // 绘制子弹
@@ -742,8 +751,9 @@ function startNextStage() {
     explosions = [];
     enemiesDestroyed = 0;
     enemies = [];
-    spawnPlayer();
-    spawnEnemies();
+    if (player && !player.active) {
+        spawnPlayer();
+    }
     updateEnemyIcons();
     updateStats();
 }
